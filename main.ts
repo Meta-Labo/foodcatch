@@ -5,14 +5,65 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.Food, function (sprite, otherSpr
     sprites.destroy(otherSprite)
     info.changeScoreBy(1)
 })
+sprites.onOverlap(SpriteKind.Projectile, SpriteKind.Enemy, function (sprite, otherSprite) {
+    sprites.destroy(sprite)
+    myFoodA = sprites.create(img`
+        . . . . . . . . . . . 6 6 6 6 6 
+        . . . . . . . . . 6 6 7 7 7 7 8 
+        . . . . . . 8 8 8 7 7 8 8 6 8 8 
+        . . e e e e c 6 6 8 8 . 8 7 8 . 
+        . e 2 5 4 2 e c 8 . . . 6 7 8 . 
+        e 2 4 2 2 2 2 2 c . . . 6 7 8 . 
+        e 2 2 2 2 2 2 2 c . . . 8 6 8 . 
+        e 2 e e 2 2 2 2 e e e e c 6 8 . 
+        c 2 e e 2 2 2 2 e 2 5 4 2 c 8 . 
+        . c 2 e e e 2 e 2 4 2 2 2 2 c . 
+        . . c 2 2 2 e e 2 2 2 2 2 2 2 e 
+        . . . e c c e c 2 2 2 2 2 2 2 e 
+        . . . . . . . c 2 e e 2 2 e 2 c 
+        . . . . . . . c e e e e e e 2 c 
+        . . . . . . . . c e 2 2 2 2 c . 
+        . . . . . . . . . c c c c c . . 
+        `, SpriteKind.Food)
+    myFoodA.setPosition(otherSprite.x, otherSprite.y)
+    myFoodA.setVelocity(otherSprite.vx, otherSprite.vy)
+    myFoodA.setFlag(SpriteFlag.AutoDestroy, true)
+    sprites.destroy(otherSprite, effects.hearts, 100)
+})
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Enemy, function (sprite, otherSprite) {
     sprites.destroy(otherSprite)
     game.gameOver(false)
 })
-let myEnemy: Sprite = null
-let myFoodA: Sprite = null
+controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
+    projectile = sprites.createProjectileFromSprite(img`
+        ....................
+        ....................
+        ....................
+        ....................
+        ....................
+        ....................
+        .......22...22......
+        ......2322.2222.....
+        ......232222222.....
+        ......222222222.....
+        .......22222b2......
+        ........222b2.......
+        .........222........
+        ..........2.........
+        ....................
+        ....................
+        ....................
+        ....................
+        ....................
+        ....................
+        `, mySprite, 0, -100)
+})
 let myFoodB: Sprite = null
-let mySprite = sprites.create(img`
+let myEnemy: Sprite = null
+let projectile: Sprite = null
+let myFoodA: Sprite = null
+let mySprite: Sprite = null
+mySprite = sprites.create(img`
     . . . . . . . . . . . . . . . . 
     . . 4 4 4 . . . . 4 4 4 . . . . 
     . 4 5 5 5 e . . e 5 5 5 4 . . . 
@@ -153,29 +204,7 @@ scene.setBackgroundImage(img`
     7777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777
     7777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777
     `)
-game.onUpdateInterval(1000, function () {
-    myFoodB = sprites.createProjectileFromSide(img`
-        . . . . c c c b b b b b . . . . 
-        . . c c b 4 4 4 4 4 4 b b b . . 
-        . c c 4 4 4 4 4 5 4 4 4 4 b c . 
-        . e 4 4 4 4 4 4 4 4 4 5 4 4 e . 
-        e b 4 5 4 4 5 4 4 4 4 4 4 4 b c 
-        e b 4 4 4 4 4 4 4 4 4 4 5 4 4 e 
-        e b b 4 4 4 4 4 4 4 4 4 4 4 b e 
-        . e b 4 4 4 4 4 5 4 4 4 4 b e . 
-        8 7 e e b 4 4 4 4 4 4 b e e 6 8 
-        8 7 2 e e e e e e e e e e 2 7 8 
-        e 6 6 2 2 2 2 2 2 2 2 2 2 6 c e 
-        e c 6 7 6 6 7 7 7 6 6 7 6 c c e 
-        e b e 8 8 c c 8 8 c c c 8 e b e 
-        e e b e c c e e e e e c e b e e 
-        . e e b b 4 4 4 4 4 4 4 4 e e . 
-        . . . c c c c c e e e e e . . . 
-        `, randint(-10, 10), 40)
-    myFoodB.setPosition(randint(0, 159), 0)
-    myFoodB.setKind(SpriteKind.Food)
-})
-game.onUpdateInterval(1500, function () {
+game.onUpdateInterval(2000, function () {
     myFoodA = sprites.create(img`
         . . . . . . . 6 . . . . . . . . 
         . . . . . . 8 6 6 . . . 6 8 . . 
@@ -198,7 +227,7 @@ game.onUpdateInterval(1500, function () {
     myFoodA.setVelocity(randint(-10, 10), 50)
     myFoodA.setFlag(SpriteFlag.AutoDestroy, true)
 })
-game.onUpdateInterval(500, function () {
+game.onUpdateInterval(1000, function () {
     myEnemy = sprites.createProjectileFromSide(img`
         ........................
         ........................
@@ -227,4 +256,26 @@ game.onUpdateInterval(500, function () {
         `, randint(-10, 10), 60)
     myEnemy.setPosition(randint(0, 159), 0)
     myEnemy.setKind(SpriteKind.Enemy)
+})
+game.onUpdateInterval(1500, function () {
+    myFoodB = sprites.createProjectileFromSide(img`
+        . . . . c c c b b b b b . . . . 
+        . . c c b 4 4 4 4 4 4 b b b . . 
+        . c c 4 4 4 4 4 5 4 4 4 4 b c . 
+        . e 4 4 4 4 4 4 4 4 4 5 4 4 e . 
+        e b 4 5 4 4 5 4 4 4 4 4 4 4 b c 
+        e b 4 4 4 4 4 4 4 4 4 4 5 4 4 e 
+        e b b 4 4 4 4 4 4 4 4 4 4 4 b e 
+        . e b 4 4 4 4 4 5 4 4 4 4 b e . 
+        8 7 e e b 4 4 4 4 4 4 b e e 6 8 
+        8 7 2 e e e e e e e e e e 2 7 8 
+        e 6 6 2 2 2 2 2 2 2 2 2 2 6 c e 
+        e c 6 7 6 6 7 7 7 6 6 7 6 c c e 
+        e b e 8 8 c c 8 8 c c c 8 e b e 
+        e e b e c c e e e e e c e b e e 
+        . e e b b 4 4 4 4 4 4 4 4 e e . 
+        . . . c c c c c e e e e e . . . 
+        `, randint(-10, 10), 40)
+    myFoodB.setPosition(randint(0, 159), 0)
+    myFoodB.setKind(SpriteKind.Food)
 })
